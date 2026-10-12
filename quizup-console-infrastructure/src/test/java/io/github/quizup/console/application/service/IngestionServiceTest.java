@@ -56,11 +56,15 @@ class IngestionServiceTest {
         verify(processorRepository).save(processorCaptor.capture());
         assertThat(processorCaptor.getValue().getName()).isEqualTo("game-projection");
         assertThat(processorCaptor.getValue().isReplaying()).isTrue();
+        assertThat(processorCaptor.getValue().isCanPause()).isTrue();
+        assertThat(processorCaptor.getValue().getTokenStoreIdentifier()).isEqualTo("test-token-store");
+        assertThat(processorCaptor.getValue().getWarnings()).isEqualTo("1 segment(s) en erreur");
 
         ArgumentCaptor<ConsoleSegmentEntity> segmentCaptor =
                 ArgumentCaptor.forClass(ConsoleSegmentEntity.class);
         verify(segmentRepository).save(segmentCaptor.capture());
         assertThat(segmentCaptor.getValue().getCurrentPosition()).isEqualTo(42L);
+        assertThat(segmentCaptor.getValue().getOnePartOf()).isEqualTo(1);
 
         ArgumentCaptor<ConsoleDlqStatEntity> dlqCaptor = ArgumentCaptor.forClass(ConsoleDlqStatEntity.class);
         verify(dlqStatRepository).save(dlqCaptor.capture());
@@ -102,8 +106,17 @@ class IngestionServiceTest {
                         false,
                         true,
                         true,
+                        true,
+                        false,
+                        true,
+                        false,
+                        "test-token-store",
+                        1,
+                        16,
+                        List.of(),
+                        List.of("1 segment(s) en erreur"),
                         List.of(new SnapshotRequest.SegmentRequest(
-                                0, 0, false, true, false, false, 42L, null, null, null)),
+                                0, 0, false, true, false, false, 42L, null, 1, null, null)),
                         new SnapshotRequest.DlqRequest(2, 1))));
     }
 }

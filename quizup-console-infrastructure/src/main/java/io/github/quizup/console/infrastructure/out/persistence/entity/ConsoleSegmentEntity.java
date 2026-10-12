@@ -55,6 +55,9 @@ public class ConsoleSegmentEntity {
     @Column(name = "reset_position")
     private Long resetPosition;
 
+    @Column(name = "one_part_of", nullable = false)
+    private int onePartOf;
+
     @Column(name = "error_type")
     private String errorType;
 

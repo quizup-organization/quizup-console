@@ -48,6 +48,31 @@ public class ConsoleProcessorEntity {
     @Column(name = "supports_reset", nullable = false)
     private boolean supportsReset;
 
+    @Column(name = "can_pause", nullable = false)
+    private boolean canPause;
+
+    @Column(name = "can_play", nullable = false)
+    private boolean canPlay;
+
+    @Column(name = "can_split", nullable = false)
+    private boolean canSplit;
+
+    @Column(name = "can_merge", nullable = false)
+    private boolean canMerge;
+
+    @Column(name = "token_store_identifier")
+    private String tokenStoreIdentifier;
+
+    @Column(name = "active_threads", nullable = false)
+    private int activeThreads;
+
+    @Column(name = "capacity", nullable = false)
+    private int capacity;
+
+    /** Warnings sérialisés en texte (une entrée par ligne). */
+    @Column(name = "warnings")
+    private String warnings;
+
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 }

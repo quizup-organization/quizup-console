@@ -26,6 +26,15 @@ public record SnapshotRequest(
             boolean error,
             boolean replaying,
             boolean supportsReset,
+            boolean canPause,
+            boolean canPlay,
+            boolean canSplit,
+            boolean canMerge,
+            String tokenStoreIdentifier,
+            int activeThreads,
+            int capacity,
+            List<String> freeThreadInstances,
+            List<String> warnings,
             List<SegmentRequest> segments,
             DlqRequest dlq
     ) {
@@ -40,6 +49,7 @@ public record SnapshotRequest(
             boolean errorState,
             Long currentPosition,
             Long resetPosition,
+            int onePartOf,
             String errorType,
             String errorMessage
     ) {

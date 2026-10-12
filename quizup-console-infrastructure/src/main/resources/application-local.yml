@@ -13,7 +13,7 @@ spring:
     password: postgres
 
 # URLs locales des services cibles par les actions d'exploitation (prod : Services Kubernetes
-# `http://<application>:8080`, résolus automatiquement).
+# `http://<application>`, résolus automatiquement).
 quizup:
   console:
     services:
@@ -26,3 +26,6 @@ quizup:
         quizup-matchmaking: http://localhost:8090
         quizup-leaderboard: http://localhost:8091
         quizup-notification: http://localhost:8093
+    # Pas de Prometheus en local par défaut (métriques désactivées ; surcharge possible).
+    prometheus:
+      url: ""

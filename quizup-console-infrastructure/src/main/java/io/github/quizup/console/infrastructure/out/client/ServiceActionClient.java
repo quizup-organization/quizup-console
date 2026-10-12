@@ -45,8 +45,19 @@ public class ServiceActionClient {
         return exchange(application, HttpMethod.POST, path, body);
     }
 
+    /**
+     * Appel GET d'un endpoint <b>racine</b> du service (ex. {@code /query-capabilities},
+     * {@code /command-capabilities}) — hors préfixe interne.
+     */
+    public String getService(String application, String path) {
+        return exchangeUrl(properties.baseUrl(application) + path, HttpMethod.GET, null);
+    }
+
     private String exchange(String application, HttpMethod method, String path, Object body) {
-        String url = properties.baseUrl(application) + INTERNAL_CONSOLE_PATH + path;
+        return exchangeUrl(properties.baseUrl(application) + INTERNAL_CONSOLE_PATH + path, method, body);
+    }
+
+    private String exchangeUrl(String url, HttpMethod method, Object body) {
         try {
             ResponseEntity<String> response = restTemplate.exchange(
                     url, method, new HttpEntity<>(body), String.class);

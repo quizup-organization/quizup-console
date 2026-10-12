@@ -64,6 +64,18 @@ class ServiceActionClientTest {
     }
 
     @Test
+    void getsServiceRootEndpointWithoutInternalPrefix() {
+        server.expect(requestTo("http://localhost:8082/query-capabilities"))
+                .andExpect(method(org.springframework.http.HttpMethod.GET))
+                .andRespond(withSuccess("{\"queryNames\":[]}", MediaType.APPLICATION_JSON));
+
+        String body = client.getService("quizup-game", "/query-capabilities");
+
+        assertThat(body).contains("queryNames");
+        server.verify();
+    }
+
+    @Test
     void defaultsToKubernetesServiceUrl() {
         ConsoleServicesProperties defaults = new ConsoleServicesProperties(Map.of());
 

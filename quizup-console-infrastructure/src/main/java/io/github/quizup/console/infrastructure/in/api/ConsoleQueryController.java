@@ -10,6 +10,7 @@ import io.github.quizup.console.infrastructure.out.persistence.repository.Consol
 import io.github.quizup.console.infrastructure.out.persistence.repository.ConsoleInstanceJpaRepository;
 import io.github.quizup.console.infrastructure.out.persistence.repository.ConsoleProcessorJpaRepository;
 import io.github.quizup.console.infrastructure.out.persistence.repository.ConsoleSegmentJpaRepository;
+import io.github.quizup.microservice.security.SecurityHelper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -104,6 +105,17 @@ public class ConsoleQueryController {
                 result.getTotalElements());
     }
 
+    /**
+     * Page « Utilisateurs » (contenu natif Axon Server) : pas de gestion locale de comptes (OIDC) —
+     * administrateur courant + acteurs du journal d'audit.
+     */
+    @GetMapping("/users")
+    public UsersResponse users() {
+        return new UsersResponse(
+                new CurrentUser(SecurityHelper.getUserId(), SecurityHelper.getUserEmail(), List.of("ROLE_ADMIN")),
+                auditService.findActors());
+    }
+
     // ------------------------------------------------------------------ mapping
 
     private static InstanceResponse toInstance(ConsoleInstanceEntity entity) {
@@ -114,13 +126,20 @@ public class ConsoleQueryController {
     private static ProcessorResponse toProcessor(ConsoleProcessorEntity entity) {
         return new ProcessorResponse(entity.getApplication(), entity.getInstanceId(), entity.getName(),
                 entity.getMode(), entity.isRunning(), entity.isError(), entity.isReplaying(),
-                entity.isSupportsReset(), entity.getUpdatedAt());
+                entity.isSupportsReset(), entity.isCanPause(), entity.isCanPlay(), entity.isCanSplit(),
+                entity.isCanMerge(), entity.getTokenStoreIdentifier(), entity.getActiveThreads(),
+                entity.getCapacity(), splitWarnings(entity.getWarnings()),
+                entity.getUpdatedAt());
+    }
+
+    private static List<String> splitWarnings(String warnings) {
+        return warnings == null || warnings.isBlank() ? List.of() : List.of(warnings.split("\n"));
     }
 
     private static SegmentResponse toSegment(ConsoleSegmentEntity entity) {
         return new SegmentResponse(entity.getSegmentId(), entity.getMask(), entity.isCaughtUp(),
                 entity.isReplaying(), entity.isMerging(), entity.isErrorState(),
-                entity.getCurrentPosition(), entity.getResetPosition(),
+                entity.getCurrentPosition(), entity.getResetPosition(), entity.getOnePartOf(),
                 entity.getErrorType(), entity.getErrorMessage());
     }
 
@@ -142,14 +161,16 @@ public class ConsoleQueryController {
 
     public record ProcessorResponse(String application, String instanceId, String name, String mode,
                                     boolean running, boolean error, boolean replaying, boolean supportsReset,
-                                    Instant updatedAt) {
+                                    boolean canPause, boolean canPlay, boolean canSplit, boolean canMerge,
+                                    String tokenStoreIdentifier, int activeThreads, int capacity,
+                                    List<String> warnings, Instant updatedAt) {
     }
 
     public record ProcessorDetailResponse(ProcessorResponse processor, List<SegmentResponse> segments) {
     }
 
     public record SegmentResponse(int segmentId, int mask, boolean caughtUp, boolean replaying, boolean merging,
-                                  boolean errorState, Long currentPosition, Long resetPosition,
+                                  boolean errorState, Long currentPosition, Long resetPosition, int onePartOf,
                                   String errorType, String errorMessage) {
     }
 
@@ -164,5 +185,11 @@ public class ConsoleQueryController {
     }
 
     public record AuditPageResponse(List<AuditResponse> items, int page, int size, long totalElements) {
+    }
+
+    public record UsersResponse(CurrentUser currentUser, List<AuditService.AuditActor> actors) {
+    }
+
+    public record CurrentUser(String userId, String email, List<String> roles) {
     }
 }

@@ -99,8 +99,20 @@ public class IngestionService {
         entity.setError(processor.error());
         entity.setReplaying(processor.replaying());
         entity.setSupportsReset(processor.supportsReset());
+        entity.setCanPause(processor.canPause());
+        entity.setCanPlay(processor.canPlay());
+        entity.setCanSplit(processor.canSplit());
+        entity.setCanMerge(processor.canMerge());
+        entity.setTokenStoreIdentifier(processor.tokenStoreIdentifier());
+        entity.setActiveThreads(processor.activeThreads());
+        entity.setCapacity(processor.capacity());
+        entity.setWarnings(joinWarnings(processor.warnings()));
         entity.setUpdatedAt(now);
         return entity;
+    }
+
+    private static String joinWarnings(List<String> warnings) {
+        return warnings == null || warnings.isEmpty() ? null : String.join("\n", warnings);
     }
 
     private static ConsoleSegmentEntity segmentEntity(String application, String instanceId,
@@ -118,6 +130,7 @@ public class IngestionService {
         entity.setErrorState(segment.errorState());
         entity.setCurrentPosition(segment.currentPosition());
         entity.setResetPosition(segment.resetPosition());
+        entity.setOnePartOf(segment.onePartOf());
         entity.setErrorType(segment.errorType());
         entity.setErrorMessage(segment.errorMessage());
         return entity;

@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Audit des actions d'exploitation (qui / quoi / sur quelle cible / résultat).
  */
@@ -25,6 +27,17 @@ public class AuditService {
 
     public Page<AuditEntry> find(Pageable pageable) {
         return repository.findAllByOrderByOccurredAtDesc(pageable).map(AuditService::toEntry);
+    }
+
+    /** Acteurs distincts du journal d'audit (page « Utilisateurs »). */
+    public List<AuditActor> findActors() {
+        return repository.findActorCounts()
+                .stream()
+                .map(actor -> new AuditActor(actor.getActor(), actor.getTotal()))
+                .toList();
+    }
+
+    public record AuditActor(String actor, long actions) {
     }
 
     private static ConsoleAuditEntity toEntity(AuditEntry entry) {

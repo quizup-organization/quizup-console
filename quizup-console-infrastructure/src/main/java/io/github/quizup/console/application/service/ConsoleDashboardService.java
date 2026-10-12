@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.quizup.console.infrastructure.out.client.ServiceActionClient;
 import io.github.quizup.console.infrastructure.out.persistence.entity.ConsoleDlqStatEntity;
 import io.github.quizup.console.infrastructure.out.persistence.entity.ConsoleProcessorEntity;
+import io.github.quizup.console.infrastructure.out.persistence.entity.ConsoleSegmentEntity;
 import io.github.quizup.console.infrastructure.out.persistence.repository.ConsoleDlqStatJpaRepository;
 import io.github.quizup.console.infrastructure.out.persistence.repository.ConsoleInstanceJpaRepository;
 import io.github.quizup.console.infrastructure.out.persistence.repository.ConsoleProcessorJpaRepository;
+import io.github.quizup.console.infrastructure.out.persistence.repository.ConsoleSegmentJpaRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -35,6 +37,7 @@ public class ConsoleDashboardService {
     private final ConsoleInstanceJpaRepository instanceRepository;
     private final ConsoleProcessorJpaRepository processorRepository;
     private final ConsoleDlqStatJpaRepository dlqStatRepository;
+    private final ConsoleSegmentJpaRepository segmentRepository;
     private final ConsoleMetricsService metricsService;
     private final ServiceActionClient client;
     private final ObjectMapper objectMapper;
@@ -45,6 +48,7 @@ public class ConsoleDashboardService {
     public ConsoleDashboardService(ConsoleInstanceJpaRepository instanceRepository,
                                    ConsoleProcessorJpaRepository processorRepository,
                                    ConsoleDlqStatJpaRepository dlqStatRepository,
+                                   ConsoleSegmentJpaRepository segmentRepository,
                                    ConsoleMetricsService metricsService,
                                    ServiceActionClient client,
                                    ObjectMapper objectMapper,
@@ -52,6 +56,7 @@ public class ConsoleDashboardService {
         this.instanceRepository = instanceRepository;
         this.processorRepository = processorRepository;
         this.dlqStatRepository = dlqStatRepository;
+        this.segmentRepository = segmentRepository;
         this.metricsService = metricsService;
         this.client = client;
         this.objectMapper = objectMapper;
@@ -64,6 +69,12 @@ public class ConsoleDashboardService {
 
         long inError = processors.stream().filter(ConsoleProcessorEntity::isError).count();
         long replaying = processors.stream().filter(ConsoleProcessorEntity::isReplaying).count();
+        long notCaughtUp = segmentRepository.findAll()
+                .stream()
+                .filter(segment -> !segment.isCaughtUp())
+                .map(segment -> segment.getApplication() + "/" + segment.getInstanceId() + "/" + segment.getProcessor())
+                .distinct()
+                .count();
         long dlqMessages = dlqStats.stream().mapToLong(ConsoleDlqStatEntity::getSize).sum();
         long dlqSequences = dlqStats.stream().mapToLong(ConsoleDlqStatEntity::getSequences).sum();
 
@@ -72,6 +83,7 @@ public class ConsoleDashboardService {
                 processors.size(),
                 inError,
                 replaying,
+                notCaughtUp,
                 dlqStats.size(),
                 dlqMessages,
                 dlqSequences);
@@ -131,7 +143,7 @@ public class ConsoleDashboardService {
     }
 
     public record Counts(long instances, long processors, long processorsInError, long processorsReplaying,
-                         long dlqProcessors, long dlqMessages, long dlqSequences) {
+                         long processorsNotCaughtUp, long dlqProcessors, long dlqMessages, long dlqSequences) {
     }
 
     public record EventStoreTotals(long events, long snapshots, List<ApplicationEventStore> applications) {

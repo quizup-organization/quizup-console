@@ -1,0 +1,8 @@
+server:
+  port: 8080
+
+spring:
+  config:
+    import: optional:classpath:quizup-prod.yml
+    activate:
+      on-profile: prod

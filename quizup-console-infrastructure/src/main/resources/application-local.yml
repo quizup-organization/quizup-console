@@ -1,0 +1,28 @@
+server:
+  port: 8094
+
+spring:
+  config:
+    import: optional:classpath:quizup-local.yml
+    activate:
+      on-profile: local
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/quizup_console
+    username: postgres
+    password: postgres
+
+# URLs locales des services cibles par les actions d'exploitation (prod : Services Kubernetes
+# `http://<application>:8080`, résolus automatiquement).
+quizup:
+  console:
+    services:
+      urls:
+        quizup-identity: http://localhost:8085
+        quizup-theme: http://localhost:8086
+        quizup-social: http://localhost:8087
+        quizup-profile: http://localhost:8088
+        quizup-game: http://localhost:8082
+        quizup-matchmaking: http://localhost:8090
+        quizup-leaderboard: http://localhost:8091
+        quizup-notification: http://localhost:8093

@@ -1,0 +1,28 @@
+spring:
+  config:
+    import: optional:classpath:quizup-defaults.yml
+  application:
+    name: quizup-console
+  profiles:
+    default: local
+
+  autoconfigure:
+    # La console n'embarque PAS le runtime Axon (ni starter, ni buses) : les intercepteurs
+    # Problem* du SDK (ExceptionAutoConfiguration) s'enregistrent sur les bus distribués et
+    # échouent sans eux. Gestion d'erreurs Spring standard à la place (ResponseStatusException).
+    exclude:
+      - io.github.quizup.microservice.autoconfigure.ExceptionAutoConfiguration
+
+  flyway:
+    locations: classpath:db/migration/console
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+microservice:
+  swagger:
+    description: QuizUp Axon Console - exploitation (processors, DLQ, replay, audit)
+  websocket:
+    enabled: false

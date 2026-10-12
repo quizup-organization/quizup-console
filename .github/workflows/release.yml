@@ -1,0 +1,19 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '.github/workflows/**'
+      - '**.md'
+
+jobs:
+  release:
+    uses: quizup-organization/quizup-reusable-workflows/.github/workflows/service-release.yml@main
+    with:
+      java-version: "25"
+      github-username: ${{ vars.QUIZUP_GITHUB_USERNAME }}
+      # Image : ghcr.io/quizup-organization/console
+      service-name: console
+    secrets:
+      GITHUB_PASSWORD: ${{ secrets.QUIZUP_GITHUB_TOKEN }}

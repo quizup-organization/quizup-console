@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/quizup-organization/quizup-console/compare/v1.0.1...v1.1.0) (2026-10-12)
+
+### Features
+
+* **console:** API native Axon Server (dashboard, handlers, metrics, search, scheduled, users) ([0447562](https://github.com/quizup-organization/quizup-console/commit/0447562357bd0042accb6f019a5407f585f3a1b4))
+
 ## [1.0.1](https://github.com/quizup-organization/quizup-console/compare/v1.0.0...v1.0.1) (2026-10-12)
 
 ### Bug Fixes

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -44,12 +45,12 @@ public class PrometheusClient {
         if (!enabled()) {
             return PrometheusResult.disabled();
         }
-        String uri = UriComponentsBuilder.fromUriString(properties.url())
+        URI uri = UriComponentsBuilder.fromUriString(properties.url())
                 .path("/api/v1/query")
                 .queryParam("query", promql)
                 .build()
                 .encode()
-                .toUriString();
+                .toUri();
         return execute(uri, false);
     }
 
@@ -57,7 +58,7 @@ public class PrometheusClient {
         if (!enabled()) {
             return PrometheusResult.disabled();
         }
-        String uri = UriComponentsBuilder.fromUriString(properties.url())
+        URI uri = UriComponentsBuilder.fromUriString(properties.url())
                 .path("/api/v1/query_range")
                 .queryParam("query", promql)
                 .queryParam("start", start.getEpochSecond())
@@ -65,11 +66,11 @@ public class PrometheusClient {
                 .queryParam("step", step.toSeconds())
                 .build()
                 .encode()
-                .toUriString();
+                .toUri();
         return execute(uri, true);
     }
 
-    private PrometheusResult execute(String uri, boolean range) {
+    private PrometheusResult execute(URI uri, boolean range) {
         try {
             String body = restTemplate.getForObject(uri, String.class);
             JsonNode root = objectMapper.readTree(body == null ? "{}" : body);

@@ -24,6 +24,7 @@ public class ConsoleCleanupService {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsoleCleanupService.class);
     private static final Duration STALE_AFTER = Duration.ofMinutes(10);
+    private static final long INITIAL_DELAY_MS = 60_000;
     private static final long CLEANUP_INTERVAL_MS = 300_000;
 
     private final ConsoleInstanceJpaRepository instanceRepository;
@@ -41,19 +42,21 @@ public class ConsoleCleanupService {
         this.dlqStatRepository = dlqStatRepository;
     }
 
-    @Scheduled(fixedDelay = CLEANUP_INTERVAL_MS, initialDelay = CLEANUP_INTERVAL_MS)
+    @Scheduled(fixedDelay = CLEANUP_INTERVAL_MS, initialDelay = INITIAL_DELAY_MS)
     @Transactional
     public void purgeStaleInstances() {
         Instant cutoff = Instant.now().minus(STALE_AFTER);
         List<ConsoleInstanceEntity> stale = instanceRepository.findAllByLastSeenBefore(cutoff);
+        if (stale.isEmpty()) {
+            logger.debug("Console cleanup: no stale instance (cutoff {})", cutoff);
+            return;
+        }
         for (ConsoleInstanceEntity instance : stale) {
             processorRepository.deleteByApplicationAndInstanceId(instance.getApplication(), instance.getInstanceId());
             segmentRepository.deleteByApplicationAndInstanceId(instance.getApplication(), instance.getInstanceId());
             dlqStatRepository.deleteByApplicationAndInstanceId(instance.getApplication(), instance.getInstanceId());
             instanceRepository.delete(instance);
         }
-        if (!stale.isEmpty()) {
-            logger.info("Purged {} stale console instance(s) (last seen before {})", stale.size(), cutoff);
-        }
+        logger.info("Purged {} stale console instance(s) (last seen before {})", stale.size(), cutoff);
     }
 }

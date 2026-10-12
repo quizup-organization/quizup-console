@@ -32,22 +32,33 @@
   `ExceptionAutoConfiguration` du SDK est **exclue** (`spring.autoconfigure.exclude`) car ses
   intercepteurs s'enregistrent sur les bus distribués — la console utilise la gestion d'erreurs
   Spring standard.
-- **Base** : Postgres `quizup_console`, Flyway `db/migration/console` (V1), JPA `validate`.
+- **Base** : Postgres `quizup_console`, Flyway `db/migration/console` (V1 + V2 champs natifs), JPA `validate`.
 - **M2M sortant** : `RestTemplate` OAuth2 `@Primary` du SDK (client credentials `server-client`) ;
   URLs des services : `quizup.console.services.urls` (défaut prod : `http://<application>`, Service
   k8s port 80 ; surcharges locales dans `application-local.yml`).
-- ⚠️ **Pin SDK provisoire** (`quizup-parent:4.4.1-SNAPSHOT`) : à bumper sur la release SDK
-  contenant l'agent console + la DLQ (Lot A) lors du release train.
+- **Prometheus** : `quizup.console.prometheus.url` (défaut in-cluster
+  `kube-prometheus-stack-prometheus.monitoring:9090`, vide en local = métriques désactivées).
+  Handlers commandes/queries lus via `/command-capabilities` + `/query-capabilities` des services.
+- **Purge** : `ConsoleCleanupService` supprime les instances sans push depuis 10 min (pods remplacés)
+  et leurs lignes filles.
 
 ## 3. Surface REST
 
 | Endpoint | Accès | Rôle |
 |---|---|---|
 | `POST /internal/ingest/snapshot` | JWT M2M (serveur à serveur, jamais ingressed) | ingestion d'un snapshot d'agent (204) |
+| `GET /api/console/dashboard` | `ROLE_ADMIN` | tableau de bord (réplicas/processors/DLQ, débits Prometheus, volumétrie event store, version) |
 | `GET /api/console/applications` | `ROLE_ADMIN` | instances par application (version, uptime, first/last seen) |
-| `GET /api/console/processors?application=` | `ROLE_ADMIN` | processors (mode, running/error/replaying, supportsReset) |
-| `GET /api/console/processors/{application}/{instanceId}/{name}` | `ROLE_ADMIN` | détail + segments |
+| `GET /api/console/applications/{application}` | `ROLE_ADMIN` | détail : instances, handlers (commandes/queries), processors enrichis |
+| `GET /api/console/processors?application=` | `ROLE_ADMIN` | processors (flags, token store, threads, warnings) |
+| `GET /api/console/processors/{application}/{instanceId}/{name}` | `ROLE_ADMIN` | détail + segments (`onePartOf`) |
+| `GET /api/console/metrics/{applications\|processors\|messages}/...` | `ROLE_ADMIN` | séries Prometheus (requêtes fixes, `range=1h\|6h\|24h`) |
+| `GET /api/console/search/events?application=&aggregateId=` | `ROLE_ADMIN` | événements d'un agrégat (payload) |
+| `GET /api/console/search/events/by-type?application=&type=` | `ROLE_ADMIN` | recherche bornée par type |
+| `GET /api/console/search/snapshots?application=&aggregateId=` | `ROLE_ADMIN` | snapshots d'un agrégat |
+| `GET /api/console/scheduled-events?application=` | `ROLE_ADMIN` | deadlines persistantes (db-scheduler) |
 | `GET /api/console/dlq` | `ROLE_ADMIN` | stats DLQ par processor |
+| `GET /api/console/users` | `ROLE_ADMIN` | admin OIDC courant + acteurs d'audit |
 | `GET /api/console/audit?page=&size=` | `ROLE_ADMIN` | journal d'audit |
 | `POST /api/console/actions/dlq/{application}/{instanceId}/{processor}/sequences/{sequenceId}/retry` | `ROLE_ADMIN` + audit | retry d'une séquence DLQ |
 | `DELETE /api/console/actions/dlq/{application}/{instanceId}/{processor}/sequences/{sequenceId}` | `ROLE_ADMIN` + audit | suppression d'une séquence |

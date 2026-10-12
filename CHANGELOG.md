@@ -1,3 +1,9 @@
+## [1.1.2](https://github.com/quizup-organization/quizup-console/compare/v1.1.1...v1.1.2) (2026-10-12)
+
+### Bug Fixes
+
+* **console:** requêtes Prometheus (double encodage URI) + purge immédiate au démarrage ([ca86cf1](https://github.com/quizup-organization/quizup-console/commit/ca86cf1d6a06682c0ff45b49010d72042ea18b64))
+
 ## [1.1.1](https://github.com/quizup-organization/quizup-console/compare/v1.1.0...v1.1.1) (2026-10-12)
 
 ### Bug Fixes

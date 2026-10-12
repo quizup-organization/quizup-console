@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/quizup-organization/quizup-console/compare/v1.1.0...v1.1.1) (2026-10-12)
+
+### Bug Fixes
+
+* **console:** purger les instances fantômes (pods remplacés) et leurs lignes filles ([257da44](https://github.com/quizup-organization/quizup-console/commit/257da44fca30fda4da1558395eb523df4487bc96))
+
 ## [1.1.0](https://github.com/quizup-organization/quizup-console/compare/v1.0.1...v1.1.0) (2026-10-12)
 
 ### Features

@@ -87,7 +87,7 @@ public class ConsoleDashboardService {
                 build != null && build.getVersion() != null ? build.getVersion() : "unknown");
 
         return new DashboardResponse(product, counts, metricsService.messageRates(),
-                eventStoreTotals(applications));
+                eventStoreTotals(applications), metricsService.storage());
     }
 
     private EventStoreTotals eventStoreTotals(List<String> applications) {
@@ -124,7 +124,7 @@ public class ConsoleDashboardService {
     // ------------------------------------------------------------------ contracts
 
     public record DashboardResponse(Product product, Counts counts, ConsoleMetricsService.MessageRates messageRates,
-                                    EventStoreTotals eventStore) {
+                                    EventStoreTotals eventStore, ConsoleMetricsService.StorageMetrics storage) {
     }
 
     public record Product(String name, String version) {

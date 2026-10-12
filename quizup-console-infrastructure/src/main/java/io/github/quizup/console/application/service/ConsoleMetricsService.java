@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
 /**
  * Requêtes Prometheus fixes des écrans d'exploitation (aucune PromQL arbitraire exposée par l'API).
@@ -79,6 +80,21 @@ public class ConsoleMetricsService {
                         + selector + "[5m]))", window.start(), window.end(), window.step()));
     }
 
+    /** Santé stockage : tailles des bases Postgres + espace disque des nœuds (équivalent natif). */
+    public StorageMetrics storage() {
+        return new StorageMetrics(
+                prometheus.query("pg_database_size_bytes{datname=~\"quizup_.*\"}"),
+                prometheus.query("node_filesystem_avail_bytes{mountpoint=\"/\"}"),
+                prometheus.query("node_filesystem_size_bytes{mountpoint=\"/\"}"));
+    }
+
+    /** Types d'événements connus (label `name` des événements publiés) — alimente les filtres. */
+    public List<String> eventTypes() {
+        return prometheus.labelValues("name", "quizup_axon_events_published_total").stream()
+                .sorted()
+                .toList();
+    }
+
     private static String escape(String labelValue) {
         return labelValue == null ? "" : labelValue.replace("\\", "\\\\").replace("\"", "\\\"");
     }
@@ -118,5 +134,9 @@ public class ConsoleMetricsService {
 
     public record MessageMetrics(PrometheusResult commands, PrometheusResult queries,
                                  PrometheusResult events) {
+    }
+
+    public record StorageMetrics(PrometheusResult databases, PrometheusResult nodeDiskAvailable,
+                                 PrometheusResult nodeDiskTotal) {
     }
 }

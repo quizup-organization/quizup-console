@@ -70,6 +70,36 @@ public class PrometheusClient {
         return execute(uri, true);
     }
 
+    /**
+     * Valeurs d'un label pour un matcher donné (`/api/v1/label/{label}/values?match[]=...`).
+     * Utilisé pour proposer les types d'événements connus dans l'UI.
+     */
+    public List<String> labelValues(String label, String match) {
+        if (!enabled()) {
+            return List.of();
+        }
+        URI uri = UriComponentsBuilder.fromUriString(properties.url())
+                .path("/api/v1/label/" + label + "/values")
+                .queryParam("match[]", match)
+                .build()
+                .encode()
+                .toUri();
+        try {
+            String body = restTemplate.getForObject(uri, String.class);
+            JsonNode root = objectMapper.readTree(body == null ? "{}" : body);
+            List<String> values = new ArrayList<>();
+            for (JsonNode value : root.path("data")) {
+                if (!value.asText().isBlank()) {
+                    values.add(value.asText());
+                }
+            }
+            return values;
+        } catch (RuntimeException | java.io.IOException exception) {
+            logger.warn("Prometheus label values failed ({}): {}", label, exception.toString());
+            return List.of();
+        }
+    }
+
     private PrometheusResult execute(URI uri, boolean range) {
         try {
             String body = restTemplate.getForObject(uri, String.class);

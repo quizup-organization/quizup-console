@@ -82,6 +82,7 @@ public class IngestionService {
                     return created;
                 });
         instance.setVersion(snapshot.applicationVersion());
+        instance.setAddress(snapshot.address());
         instance.setUptimeSeconds(snapshot.uptimeSeconds());
         instance.setLastSeen(now);
         instanceRepository.save(instance);

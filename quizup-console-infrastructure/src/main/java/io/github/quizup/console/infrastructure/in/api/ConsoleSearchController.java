@@ -103,8 +103,10 @@ public class ConsoleSearchController {
 
     @GetMapping("/search/snapshots")
     public ResponseEntity<String> snapshots(@RequestParam String application,
-                                            @RequestParam String aggregateId) {
-        return proxy(application, "/eventstore/aggregates/" + segment(aggregateId) + "/snapshots");
+                                            @RequestParam String aggregateId,
+                                            @RequestParam(defaultValue = "false") boolean withPayload) {
+        return proxy(application, "/eventstore/aggregates/" + segment(aggregateId) + "/snapshots"
+                + (withPayload ? "?withPayload=true" : ""));
     }
 
     @GetMapping("/scheduled-events")

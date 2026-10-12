@@ -53,6 +53,27 @@ public class ServiceActionClient {
         return exchangeUrl(properties.baseUrl(application) + path, HttpMethod.GET, null);
     }
 
+    /** Appel à l'adresse d'une instance précise (`ip:port`) — ciblage des pods multi-réplicas. */
+    public String getAt(String address, String path) {
+        return exchangeAt(address, HttpMethod.GET, path, null);
+    }
+
+    public String postAt(String address, String path) {
+        return exchangeAt(address, HttpMethod.POST, path, null);
+    }
+
+    public String postAt(String address, String path, Object body) {
+        return exchangeAt(address, HttpMethod.POST, path, body);
+    }
+
+    public String deleteAt(String address, String path) {
+        return exchangeAt(address, HttpMethod.DELETE, path, null);
+    }
+
+    private String exchangeAt(String address, HttpMethod method, String path, Object body) {
+        return exchangeUrl("http://" + address + INTERNAL_CONSOLE_PATH + path, method, body);
+    }
+
     private String exchange(String application, HttpMethod method, String path, Object body) {
         return exchangeUrl(properties.baseUrl(application) + INTERNAL_CONSOLE_PATH + path, method, body);
     }

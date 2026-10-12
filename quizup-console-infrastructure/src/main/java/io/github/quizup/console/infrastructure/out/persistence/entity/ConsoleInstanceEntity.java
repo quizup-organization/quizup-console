@@ -33,6 +33,10 @@ public class ConsoleInstanceEntity {
     @Column(name = "version")
     private String version;
 
+    /** Adresse `ip:port` de l'instance (ciblage des actions par pod). */
+    @Column(name = "address")
+    private String address;
+
     @Column(name = "uptime_seconds", nullable = false)
     private long uptimeSeconds;
 

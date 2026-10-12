@@ -2,6 +2,7 @@ package io.github.quizup.console.infrastructure.in.api;
 
 import io.github.quizup.console.application.service.AuditService;
 import io.github.quizup.console.domain.model.AuditEntry;
+import io.github.quizup.console.infrastructure.out.client.ServiceActionClient;
 import io.github.quizup.console.infrastructure.out.persistence.entity.ConsoleDlqStatEntity;
 import io.github.quizup.console.infrastructure.out.persistence.entity.ConsoleInstanceEntity;
 import io.github.quizup.console.infrastructure.out.persistence.entity.ConsoleProcessorEntity;
@@ -14,6 +15,8 @@ import io.github.quizup.microservice.security.SecurityHelper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 
@@ -40,17 +45,20 @@ public class ConsoleQueryController {
     private final ConsoleSegmentJpaRepository segmentRepository;
     private final ConsoleDlqStatJpaRepository dlqStatRepository;
     private final AuditService auditService;
+    private final ServiceActionClient client;
 
     public ConsoleQueryController(ConsoleInstanceJpaRepository instanceRepository,
                                   ConsoleProcessorJpaRepository processorRepository,
                                   ConsoleSegmentJpaRepository segmentRepository,
                                   ConsoleDlqStatJpaRepository dlqStatRepository,
-                                  AuditService auditService) {
+                                  AuditService auditService,
+                                  ServiceActionClient client) {
         this.instanceRepository = instanceRepository;
         this.processorRepository = processorRepository;
         this.segmentRepository = segmentRepository;
         this.dlqStatRepository = dlqStatRepository;
         this.auditService = auditService;
+        this.client = client;
     }
 
     @GetMapping("/applications")
@@ -116,11 +124,30 @@ public class ConsoleQueryController {
                 auditService.findActors());
     }
 
+    /**
+     * Lag d'un processor (position de queue vs positions) — relais vers le pod concerné
+     * (adresse d'instance, repli Service).
+     */
+    @GetMapping("/processors/{application}/{instanceId}/{name}/lag")
+    public ResponseEntity<String> processorLag(@PathVariable String application,
+                                               @PathVariable String instanceId,
+                                               @PathVariable String name) {
+        String path = "/processors/" + UriUtils.encodePathSegment(name, StandardCharsets.UTF_8) + "/lag";
+        String body = instanceRepository.findByApplicationAndInstanceId(application, instanceId)
+                .map(instance -> instance.getAddress())
+                .filter(address -> address != null && !address.isBlank())
+                .map(address -> client.getAt(address, path))
+                .orElseGet(() -> client.get(application, path));
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body == null || body.isBlank() ? "{}" : body);
+    }
+
     // ------------------------------------------------------------------ mapping
 
     private static InstanceResponse toInstance(ConsoleInstanceEntity entity) {
         return new InstanceResponse(entity.getApplication(), entity.getInstanceId(), entity.getVersion(),
-                entity.getUptimeSeconds(), entity.getFirstSeen(), entity.getLastSeen());
+                entity.getAddress(), entity.getUptimeSeconds(), entity.getFirstSeen(), entity.getLastSeen());
     }
 
     private static ProcessorResponse toProcessor(ConsoleProcessorEntity entity) {
@@ -155,7 +182,7 @@ public class ConsoleQueryController {
 
     // ------------------------------------------------------------------ contracts
 
-    public record InstanceResponse(String application, String instanceId, String version,
+    public record InstanceResponse(String application, String instanceId, String version, String address,
                                    long uptimeSeconds, Instant firstSeen, Instant lastSeen) {
     }
 

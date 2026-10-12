@@ -98,6 +98,7 @@ class IngestionServiceTest {
                 "quizup-game",
                 "8.0.1",
                 "pod-1",
+                "10.42.0.5:8080",
                 120,
                 List.of(new SnapshotRequest.ProcessorRequest(
                         "game-projection",

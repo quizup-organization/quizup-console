@@ -87,7 +87,7 @@ public class ConsoleApplicationController {
 
     private static InstanceView instanceView(ConsoleInstanceEntity entity) {
         return new InstanceView(entity.getApplication(), entity.getInstanceId(), entity.getVersion(),
-                entity.getUptimeSeconds(), entity.getFirstSeen(), entity.getLastSeen());
+                entity.getAddress(), entity.getUptimeSeconds(), entity.getFirstSeen(), entity.getLastSeen());
     }
 
     private static SegmentView segmentView(ConsoleSegmentEntity entity) {
@@ -105,8 +105,8 @@ public class ConsoleApplicationController {
                                     List<ProcessorView> processors) {
     }
 
-    public record InstanceView(String application, String instanceId, String version, long uptimeSeconds,
-                               Instant firstSeen, Instant lastSeen) {
+    public record InstanceView(String application, String instanceId, String version, String address,
+                               long uptimeSeconds, Instant firstSeen, Instant lastSeen) {
     }
 
     public record ProcessorView(String application, String instanceId, String name, String mode,

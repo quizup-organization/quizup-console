@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/quizup-organization/quizup-console/compare/v1.2.0...v1.3.0) (2026-10-12)
+
+### Features
+
+* compteur de processors en retard au dashboard (segments non à jour) ([8d30904](https://github.com/quizup-organization/quizup-console/commit/8d30904c764e68b5f292d9a89cd488e39860a85d))
+
 ## [1.2.0](https://github.com/quizup-organization/quizup-console/compare/v1.1.2...v1.2.0) (2026-10-12)
 
 ### Features

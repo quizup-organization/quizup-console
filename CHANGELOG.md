@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/quizup-organization/quizup-console/compare/v1.1.2...v1.2.0) (2026-10-12)
+
+### Features
+
+* types d'événements, recherche multi-applications et stockage dashboard ([4dccc1e](https://github.com/quizup-organization/quizup-console/commit/4dccc1ee13e1d768b1f63c061300c1e5f820ed3e))
+
 ## [1.1.2](https://github.com/quizup-organization/quizup-console/compare/v1.1.1...v1.1.2) (2026-10-12)
 
 ### Bug Fixes

@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/quizup-organization/quizup-console/compare/v1.3.0...v1.4.0) (2026-10-12)
+
+### Features
+
+* ciblage des pods, lag, commandes en vol, annulation scheduled, payload snapshots ([dfe99dc](https://github.com/quizup-organization/quizup-console/commit/dfe99dc72b341a442d1b15d7db0337e104820c70))
+
 ## [1.3.0](https://github.com/quizup-organization/quizup-console/compare/v1.2.0...v1.3.0) (2026-10-12)
 
 ### Features

@@ -21,6 +21,11 @@ public class ConsoleDashboardController {
         this.dashboardService = dashboardService;
     }
 
+    @GetMapping("/version")
+    public ConsoleDashboardService.Product version() {
+        return dashboardService.version();
+    }
+
     @GetMapping("/dashboard")
     public ConsoleDashboardService.DashboardResponse dashboard() {
         return dashboardService.dashboard();

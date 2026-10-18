@@ -63,6 +63,13 @@ public class ConsoleDashboardService {
         this.buildProperties = buildProperties;
     }
 
+    /** Version du service (build-info), sans agrégation dashboard. */
+    public Product version() {
+        BuildProperties build = buildProperties.getIfAvailable();
+        return new Product("QuizUp Console",
+                build != null && build.getVersion() != null ? build.getVersion() : "unknown");
+    }
+
     public DashboardResponse dashboard() {
         List<ConsoleProcessorEntity> processors = processorRepository.findAll();
         List<ConsoleDlqStatEntity> dlqStats = dlqStatRepository.findAll();
@@ -94,9 +101,7 @@ public class ConsoleDashboardService {
                 .sorted()
                 .toList();
 
-        BuildProperties build = buildProperties.getIfAvailable();
-        Product product = new Product("QuizUp Console",
-                build != null && build.getVersion() != null ? build.getVersion() : "unknown");
+        Product product = version();
 
         return new DashboardResponse(product, counts, metricsService.messageRates(),
                 eventStoreTotals(applications), metricsService.storage());

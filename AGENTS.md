@@ -47,6 +47,7 @@
 | Endpoint | Accès | Rôle |
 |---|---|---|
 | `POST /internal/ingest/snapshot` | JWT M2M (serveur à serveur, jamais ingressed) | ingestion d'un snapshot d'agent (204) |
+| `GET /api/console/version` | `ROLE_ADMIN` | version du service (`build-info`) — lecture légère pour le pied de page de la console |
 | `GET /api/console/dashboard` | `ROLE_ADMIN` | tableau de bord (réplicas/processors/DLQ, débits Prometheus, volumétrie event store, version) |
 | `GET /api/console/applications` | `ROLE_ADMIN` | instances par application (version, uptime, first/last seen) |
 | `GET /api/console/applications/{application}` | `ROLE_ADMIN` | détail : instances, handlers (commandes/queries), processors enrichis |

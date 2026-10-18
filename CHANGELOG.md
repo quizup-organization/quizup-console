@@ -1,3 +1,9 @@
+## [1.5.0](https://github.com/quizup-organization/quizup-console/compare/v1.4.0...v1.5.0) (2026-10-18)
+
+### Features
+
+* expose a lightweight service version endpoint ([965c931](https://github.com/quizup-organization/quizup-console/commit/965c931f54c823dcce58fec5e65e599d2f0e5aca))
+
 ## [1.4.0](https://github.com/quizup-organization/quizup-console/compare/v1.3.0...v1.4.0) (2026-10-12)
 
 ### Features
